@@ -14,7 +14,7 @@ WORKSPACE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 KERNEL_SRC="$WORKSPACE_ROOT/kernel/linux"
 BUILD_DIR="$WORKSPACE_ROOT/kernel/build"
 KERNEL_TAG="${KERNEL_TAG:-v6.12}"
-JOBS="$(nproc)"
+JOBS="${JOBS:-$(nproc)}"
 
 CYAN='\033[1;36m'; GREEN='\033[1;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
 

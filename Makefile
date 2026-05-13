@@ -19,10 +19,10 @@ setup:
 	@echo "→ Obteniendo kernel..."
 	@bash $(SCRIPTS)/01_fetch_kernel.sh || ( \
 		echo "⚠ Descarga falló. Compilando desde fuente (~25 min)..."; \
-		bash $(SCRIPTS)/02_build_kernel.sh \
+		JOBS=4 bash $(SCRIPTS)/02_build_kernel.sh \
 	)
 	@echo "→ Construyendo rootfs..."
-	@STUDENT_ID="$(STUDENT_ID)" bash $(SCRIPTS)/03_build_rootfs.sh
+	@STUDENT_ID="$(STUDENT_ID)" JOBS=4 bash $(SCRIPTS)/03_build_rootfs.sh
 	@echo ""
 	@echo "✓ Listo. Ejecuta: make qemu"
 

@@ -16,7 +16,7 @@ WORKSPACE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 BUSYBOX_SRC="$WORKSPACE_ROOT/kernel/busybox"
 INITRAMFS_DIR="$WORKSPACE_ROOT/kernel/initramfs"
 BUILD_DIR="$WORKSPACE_ROOT/kernel/build"
-JOBS="$(nproc)"
+JOBS="${JOBS:-$(nproc)}"
 
 STUDENT_ID="${STUDENT_ID:-$(git -C "$WORKSPACE_ROOT" config user.name 2>/dev/null \
                 | tr ' ' '-' | tr -cd '[:alnum:]-' | head -c 20)}"
@@ -50,11 +50,23 @@ echo -e "${CYAN}[3/5] Compilando BusyBox estático (~3-5 min)...${NC}"
 make -j"$JOBS" 2>&1 | tail -3
 
 # Verificar que quedó estático
-if ! file busybox | grep -q "statically linked"; then
+static_ok=0
+if command -v file >/dev/null 2>&1; then
+  if file busybox 2>/dev/null | grep -q "statically linked"; then
+    static_ok=1
+  fi
+else
+  if ! readelf -l busybox 2>/dev/null | grep -q 'INTERP'; then
+    static_ok=1
+  fi
+fi
+
+if [ "$static_ok" -ne 1 ]; then
   echo -e "${YELLOW}⚠ BusyBox NO quedó estático. Verificando .config...${NC}"
   grep STATIC .config
   exit 1
 fi
+
 echo -e "${GREEN}  ✓ BusyBox compilado estáticamente${NC}"
 
 echo -e "${CYAN}[4/5] Instalando BusyBox en initramfs y armando estructura...${NC}"
@@ -104,6 +116,7 @@ INITEOF
 chmod +x "$INITRAMFS_DIR/init"
 
 echo -e "${CYAN}[5/5] Empaquetando initramfs...${NC}"
+mkdir -p "$BUILD_DIR"
 cd "$INITRAMFS_DIR"
 find . | cpio -o -H newc 2>/dev/null | gzip > "$BUILD_DIR/initramfs.cpio.gz"
 

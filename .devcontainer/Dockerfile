@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Python 3.10+ para el exploit
     python3 python3-pip \
     # Análisis y debugging
-    strace ltrace gdb binutils elfutils \
+    strace ltrace gdb binutils elfutils file \
     # bsdextrautils trae hexdump (NO existe como paquete propio en 24.04)
     bsdextrautils xxd \
     # Utilidades varias
